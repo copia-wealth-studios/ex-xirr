@@ -1,5 +1,5 @@
 legacy_finance_func = fn d, v -> LegacyFinance.xirr(d, v) end
-
+finance_func = fn d, v -> Finance.xirr(d, v) end
 ex_xirr_func = fn d, v -> ExXirr.xirr(d, v) end
 
 inputs = %{
@@ -38,6 +38,7 @@ inputs = %{
 Benchee.run(
   %{
     "legacy finance" => fn %{d: dates, v: values} -> legacy_finance_func.(dates, values) end,
+    "finance" => fn %{d: dates, v: values} -> finance_func.(dates, values) end,
     "ex xirr" => fn %{d: dates, v: values} -> ex_xirr_func.(dates, values) end
   },
   formatters: [
