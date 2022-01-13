@@ -44,11 +44,11 @@ defmodule ExXirr.Mixfile do
 
   defp deps do
     [
-      {:timex, "~> 3.1"},
-      {:ex_doc, "~> 0.12", only: :dev},
-      {:benchee, "~> 0.11", only: :dev},
-      {:benchee_html, "~> 0.4", only: :dev},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:timex, "~> 3.7"},
+      {:ex_doc, "~> 0.27", only: :dev},
+      {:benchee, "~> 1.0", only: :dev},
+      {:benchee_html, "~> 1.0", only: :dev},
+      {:excoveralls, "~> 0.14", only: :test}
     ]
   end
 end
