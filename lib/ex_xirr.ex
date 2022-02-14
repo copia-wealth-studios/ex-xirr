@@ -4,7 +4,7 @@ defmodule ExXirr do
   through the Newton Raphson method.
   """
 
-  @max_error 1.0e-3
+  @delta 0.000001
   @days_in_a_year 365
 
   # Public API
@@ -44,7 +44,7 @@ defmodule ExXirr do
         {:error, "Values should have at least one positive or negative value."}
 
       length(dates) - length(values) == 0 && verify_flow(values) ->
-        calculate(:xirr, dates_values, [], guess_rate(dates, values), 0)
+        calculate(:xirr, dates_values, false, guess_rate(dates, values), 0)
 
       true ->
         {:error, "Uncaught error"}
@@ -66,7 +66,7 @@ defmodule ExXirr do
       iex> v = [1000, -600, -200]
       iex> {:ok, rate} = ExXirr.xirr(d,v)
       iex> ExXirr.absolute_rate(rate, 50)
-      {:ok, -0.48}
+      {:ok, -0.481092}
   """
   @spec absolute_rate(float(), integer()) :: {:ok, float()} | {:error, String.t()}
   def absolute_rate(0, _), do: {:error, "Rate is 0"}
@@ -74,9 +74,9 @@ defmodule ExXirr do
   def absolute_rate(rate, days) do
     try do
       if days < @days_in_a_year do
-        {:ok, ((:math.pow(1 + rate, days / @days_in_a_year) - 1) * 100) |> Float.round(2)}
+        {:ok, ((:math.pow(1 + rate, days / @days_in_a_year) - 1) * 100) |> Float.round(6)}
       else
-        {:ok, (rate * 100) |> Float.round(2)}
+        {:ok, (rate * 100) |> Float.round(8)}
       end
     rescue
       e in _ ->
@@ -138,7 +138,7 @@ defmodule ExXirr do
     period = 1 / (length(dates) - 1)
     multiple = 1 + abs(max_value / min_value)
     rate = :math.pow(multiple, period) - 1
-    Float.round(rate, 6)
+    Float.round(rate, 8)
   end
 
   @spec reduce_date_values(list(), float()) :: tuple()
@@ -154,7 +154,7 @@ defmodule ExXirr do
       end)
       |> Enum.map(&xirr_reduction/1)
       |> Enum.sum()
-      |> Float.round(6)
+      |> Float.round(8)
 
     calculated_dxirr =
       dates_values
@@ -167,30 +167,31 @@ defmodule ExXirr do
       end)
       |> Enum.map(&dxirr_reduction/1)
       |> Enum.sum()
-      |> Float.round(6)
+      |> Float.round(8)
 
     {calculated_xirr, calculated_dxirr}
   end
 
   @spec calculate(atom(), list(), float(), float(), integer()) ::
           {:ok, float()} | {:error, String.t()}
-  defp calculate(:xirr, _, 0.0, rate, _), do: {:ok, Float.round(rate, 6)}
-  defp calculate(:xirr, _, _, -1.0, _), do: {:error, "Could not converge"}
-  defp calculate(:xirr, _, _, _, 300), do: {:error, "I give up"}
+
+  defp calculate(:xirr, _, _, rate, _) when rate > 1_000_000_000,
+    do: {:error, "Converged on infinity."}
+
+  defp calculate(:xirr, _, 0.0, rate, _), do: {:ok, Float.round(rate, 8)}
+
+  defp calculate(:xirr, _, _, -1.0, _), do: {:error, "Could not converge."}
+  defp calculate(:xirr, _, _, _, 500), do: {:error, "Did not converge after 500 iterations."}
 
   defp calculate(:xirr, dates_values, _, rate, tries) do
     {xirr, dxirr} = reduce_date_values(dates_values, rate)
 
-    new_rate =
-      if dxirr < 0.0 do
-        rate
-      else
-        rate - xirr / dxirr
-      end
+    new_rate = if Kernel.abs(dxirr) < @delta, do: rate, else: rate - xirr / dxirr
 
     diff = Kernel.abs(new_rate - rate)
-    diff = if diff < @max_error, do: 0.0
+    diff = if diff < @delta, do: 0.0
     tries = tries + 1
+
     calculate(:xirr, dates_values, diff, new_rate, tries)
   end
 end
