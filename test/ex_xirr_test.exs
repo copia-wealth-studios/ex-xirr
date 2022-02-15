@@ -158,7 +158,7 @@ defmodule ExXirrTest do
         {2013, 03, 28}
       ]
 
-      assert ExXirr.xirr(d, v) == {:error, "Converged on infinity."}
+      assert ExXirr.xirr(d, v) == {:error, "Could not converge"}
     end
 
     test "wrong size" do

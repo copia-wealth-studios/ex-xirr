@@ -4,7 +4,7 @@ defmodule ExXirr do
   through the Newton Raphson method.
   """
 
-  @delta 0.000001
+  @delta 0.00000001
   @days_in_a_year 365
 
   # Public API
@@ -25,7 +25,7 @@ defmodule ExXirr do
     {:error, "Date and Value collections must have the same size"}
   end
 
-  def xirr(dates, values) when length(dates) < 10 do
+  def xirr(dates, values) when length(dates) < 7 do
     LegacyFinance.xirr(dates, values)
   rescue
     e in _ ->
@@ -35,6 +35,7 @@ defmodule ExXirr do
   end
 
   def xirr(dates, values) do
+    {legacy_dates, legacy_values} = {dates, values}
     dates = Enum.map(dates, &Date.from_erl!(&1))
     min_date = dates |> List.first()
     {dates, values, dates_values} = compact_flow(Enum.zip(dates, values), min_date)
@@ -44,7 +45,13 @@ defmodule ExXirr do
         {:error, "Values should have at least one positive or negative value."}
 
       length(dates) - length(values) == 0 && verify_flow(values) ->
-        calculate(:xirr, dates_values, false, guess_rate(dates, values), 0)
+        case calculate(:xirr, dates_values, -1.0, guess_rate(dates, values), 0) do
+          {:ok, xirr} ->
+            {:ok, xirr}
+
+          {:error, _} ->
+            LegacyFinance.xirr(legacy_dates, legacy_values)
+        end
 
       true ->
         {:error, "Uncaught error"}
