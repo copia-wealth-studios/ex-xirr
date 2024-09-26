@@ -174,7 +174,7 @@ defmodule ExXirr do
 
   @spec calculate(atom(), list(), float(), float(), integer()) ::
           {:ok, float()} | {:error, String.t()}
-  defp calculate(:xirr, _, acc, rate, _)  when acc in [-0.0, +0.0], do: {:ok, Float.round(rate, 6)}
+  defp calculate(:xirr, _, acc, rate, _) when acc in [-0.0, +0.0], do: {:ok, Float.round(rate, 6)}
   defp calculate(:xirr, _, _, -1.0, _), do: {:error, "Could not converge"}
   defp calculate(:xirr, _, _, _, 300), do: {:error, "I give up"}
 
