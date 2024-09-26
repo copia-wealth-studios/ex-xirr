@@ -18,7 +18,9 @@ The package can be installed as:
 
       ```ex
       def deps do
-        [{:ex_xirr, "~> 1.0.0"}]
+        [
+          {:ex_xirr, "~> 1.0.0", github: "copia-wealth-studios/ex-xirr"},
+        ]
       end
       ```
 
@@ -26,7 +28,9 @@ The package can be installed as:
 
       ```ex
       def application do
-        [applications: [:ex_xirr]]
+        [
+          extra_applications: [:logger, :ex_xirr]
+        ]
       end
       ```
 ## Test
