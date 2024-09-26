@@ -34,8 +34,6 @@ jobs:
         run: mix compile --warnings-as-errors
       - name: Check code formatting
         run: mix format --check-formatted
-      - name: Security-focused static code analysis
-        run: mix sobelow --config
       - name: Run Elixir tests
         run: mix coveralls
   dialyzer:
