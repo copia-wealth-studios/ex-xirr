@@ -1,0 +1,83 @@
+name: Pull Request Workflow
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Elixir Tests
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1"
+          elixir-version: "1.17.3"
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: mix deps.get
+      - name: Compile
+        run: mix compile --warnings-as-errors
+      - name: Check code formatting
+        run: mix format --check-formatted
+      - name: Security-focused static code analysis
+        run: mix sobelow --config
+      - name: Run Elixir tests
+        run: mix coveralls
+  dialyzer:
+    name: "Dialyzer"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Elixir
+        id: beam
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1"
+          elixir-version: "1.17.3"
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: mix deps.get
+      # Don't cache PLTs based on mix.lock hash, as Dialyzer can incrementally update even old ones
+      # Cache key based on Elixir & Erlang version (also useful when running in matrix)
+      - name: Restore PLT cache
+        uses: actions/cache@v4
+        id: plt_cache
+        with:
+          key: |
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}
+          restore-keys: |
+            plt-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}
+          path: |
+            priv/plts
+      - name: Compile
+        run: mix compile --warnings-as-errors
+      # Create PLTs if no cache was found
+      - name: Create PLTs
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+      - name: Run dialyzer
+        run: mix dialyzer --format github
