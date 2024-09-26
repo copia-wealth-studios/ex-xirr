@@ -1,5 +1,4 @@
 # ExXirr
-[![codecov](https://codecov.io/gh/scripbox/ex-xirr/branch/master/graph/badge.svg)](https://codecov.io/gh/scripbox/ex-xirr) ![Hex.pm](https://img.shields.io/hexpm/dt/ex_xirr.svg) ![Travis](https://img.shields.io/travis/scripbox/ex-xirr.svg)
 
 A library to calculate xirr using the [Newton Raphson method](https://en.wikipedia.org/wiki/Newton%27s_method).
 
@@ -43,8 +42,9 @@ The package can be installed as:
     ```
     mix run test/xirr_comparison_bench.exs
     ```
-- The reports are available [here](https://htmlpreview.github.io/?https://github.com/scripbox/ex-xirr/blob/master/benchmarks/output/results.html).
 
 ## Credits
+
+This is a fork of [scripbox/ex-xirr](https://github.com/scripbox/ex-xirr).
 
 This application is built on the fantastic [finance-elixir](https://github.com/tubedude/finance-elixir) package. Many thanks to [tubedude](https://github.com/tubedude) for his work.
