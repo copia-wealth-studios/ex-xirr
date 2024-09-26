@@ -8,3 +8,4 @@ erl_crash.dump
 *.swp
 snapshots/*
 .elixir_ls
+/benchmarks
