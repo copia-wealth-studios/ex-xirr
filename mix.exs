@@ -26,7 +26,7 @@ defmodule ExXirr.Mixfile do
   end
 
   def application do
-    [applications: [:logger], extra_applications: [:timex]]
+    [extra_applications: [:logger, :timex]]
   end
 
   defp description do
@@ -44,11 +44,11 @@ defmodule ExXirr.Mixfile do
 
   defp deps do
     [
-      {:timex, "~> 3.1"},
-      {:ex_doc, "~> 0.12", only: :dev},
-      {:benchee, "~> 0.11", only: :dev},
-      {:benchee_html, "~> 0.4", only: :dev},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:timex, "~> 3.7.11"},
+      {:ex_doc, "~> 0.34.2", only: :dev},
+      {:benchee, "~> 1.3.1", only: :dev},
+      {:benchee_html, "~> 1.0.1", only: :dev},
+      {:excoveralls, "~> 0.18.3", only: :test}
     ]
   end
 end

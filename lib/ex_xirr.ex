@@ -185,7 +185,7 @@ defmodule ExXirr do
   defp calculate(:xirr, _, _, rate, _) when rate > 1_000_000_000,
     do: {:error, "Converged on infinity."}
 
-  defp calculate(:xirr, _, 0.0, rate, _), do: {:ok, Float.round(rate, 8)}
+  defp calculate(:xirr, _, acc, rate, _) when acc in [-0.0, +0.0], do: {:ok, Float.round(rate, 8)}
 
   defp calculate(:xirr, _, _, -1.0, _), do: {:error, "Could not converge."}
   defp calculate(:xirr, _, _, _, 500), do: {:error, "Did not converge after 500 iterations."}
