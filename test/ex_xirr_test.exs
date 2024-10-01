@@ -96,7 +96,7 @@ defmodule ExXirrTest do
         {2013, 12, 28}
       ]
 
-      assert ExXirr.xirr(d, v) == {:ok, 0.391325}
+      assert ExXirr.xirr(d, v) == {:ok, 0.39132547}
     end
 
     test "converge on infinity" do
