@@ -182,7 +182,7 @@ defmodule ExXirr do
   @spec calculate(atom(), list(), float(), float(), integer()) ::
           {:ok, float()} | {:error, String.t()}
 
-  defp calculate(:xirr, _, _, rate, _) when rate > 1_000_000_000,
+  defp calculate(:xirr, _, _, rate, _) when rate > 1_000_000,
     do: {:error, "Converged on infinity."}
 
   defp calculate(:xirr, _, _, rate, _) when rate > -1_000_000,
